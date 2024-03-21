@@ -1,0 +1,12 @@
+{
+  "name": "RunningMan",
+  "version": "1.0.0",
+  "description": "Game",
+  "main": "index.js",
+  "author": "Nikki Odd",
+  "license": "MIT",
+  "test": "jest",
+  "dependencies": {
+    "jest": "^29.7.0"
+  }
+}

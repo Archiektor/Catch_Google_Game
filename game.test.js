@@ -21,30 +21,69 @@ describe('game test', () => {
 
         expect(game.status).toBe('in-process');
     })
-    it('check on uniq positions', () => {
+    it('check player#1 and player#2 to have unique positions', () => {
         for (let i = 0; i < 10; i++) {
             const game = new Game();
 
             game.settings = {
                 gridSize: {
-                    width: 2, height: 3,
+                    width: 1, height: 3,
                 }
             }
 
             game.start()
 
-            const players = game.getPlayers();
+            const player1 = game.player1;
+            const player2 = game.player2;
 
             // console.log(`Try #${i}`);
             // console.log(players);
 
-            expect([1, 2]).toContain(players[0].position.x);
-            expect([1, 2, 3]).toContain(players[0].position.y);
 
-            expect([1, 2]).toContain(players[1].position.x);
-            expect([1, 2, 3]).toContain(players[1].position.y);
+            expect([1]).toContain(player1.position.x);
+            expect([1, 2, 3]).toContain(player1.position.y);
 
-            expect(players[0].position.x !== players[1].position.x || players[0].position.y !== players[1].position.y).toBeTruthy();
+            expect([1]).toContain(player2.position.x);
+            expect([1, 2, 3]).toContain(player2.position.y);
+
+            expect(player1.position.x !== player2.position.x || player1.position.y !== player2.position.y).toBeTruthy();
+        }
+    })
+
+    it('check players and google to have unique positions', () => {
+        for (let i = 0; i < 10; i++) {
+            const game = new Game();
+
+            game.settings = {
+                gridSize: {
+                    width: 1, height: 3,
+                }
+            }
+
+            game.start()
+
+            const player1 = game.player1;
+            const player2 = game.player2;
+            const google = game.getGoogle();
+
+            // console.log(`Try #${i}`);
+            // console.log(players);
+            // console.log(google);
+
+            expect([1]).toContain(player1.position.x);
+            expect([1, 2, 3]).toContain(player1.position.y);
+
+            expect([1]).toContain(player2.position.x);
+            expect([1, 2, 3]).toContain(player2.position.y);
+
+            expect([1]).toContain(google.position.x);
+            expect([1, 2, 3]).toContain(google.position.y);
+
+            expect(
+                google.position.x !== player1.position.x ||
+                google.position.y !== player2.position.x &&
+                google.position.x !== player2.position.y ||
+                google.position.y !== player2.position.y).toBeTruthy();
         }
     })
 })

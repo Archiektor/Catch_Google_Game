@@ -2,46 +2,49 @@ class Game {
     #settings = {
         gridSize: {
             width: 4, height: 5,
-        }
+        },
+        googleJumpInterval: 2000,
     };
     #status = 'pending';
     #player1;
     #player2;
     #google;
 
-    #createUnits() {
-        const player1Position = Position.getNotCrossedPosition(
-            this.#settings.gridSize.width,
-            this.#settings.gridSize.height,
-            [])
-        this.#player1 = new Player(player1Position, 1);
-        //const player2Position = new Position(this.getRandomPosition([player1Position]));
-        const player2Position = Position.getNotCrossedPosition(
-            this.#settings.gridSize.width,
-            this.#settings.gridSize.height,
-            [player1Position])
-        this.#player2 = new Player(player2Position, 2);
-
-        const googlePosition = Position.getNotCrossedPosition(
-            this.#settings.gridSize.width,
-            this.#settings.gridSize.height,
-            [player1Position, player2Position]);
-        this.#google = new Google(googlePosition);
+    constructor() {
     }
 
-    // getRandomPosition(coordinates) {
-    //     let x, y;
-    //
-    //     do {
-    //         x = NumberUtils.getRandomNumber(this.#settings.gridSize.width);
-    //         y = NumberUtils.getRandomNumber(this.#settings.gridSize.height);
-    //     } while (coordinates.some((el) => el.x === x && el.y === y))
-    //
-    //     return {x, y};
-    // }
+    async start() {
+        if (this.#status === 'pending') {
+            this.#status = 'in-process';
 
-    getGoogle() {
-        return this.#google;
+            this.#createUnits();
+
+            setInterval(() => {
+                const googlePosition = new Position(Position.getNotCrossedPosition(
+                    [this.#player1.position, this.#player2.position, this.#google.position],
+                    this.#settings.gridSize.width,
+                    this.#settings.gridSize.height,
+                ));
+                this.#google = new Google(googlePosition);
+            }, this.#settings.googleJumpInterval)
+        }
+    }
+
+    #createUnits() {
+        const maxGridWidthSize = this.#settings.gridSize.width;
+        const maxGridHeightSize = this.#settings.gridSize.height;
+
+        const player1Position = new Position(Position.getNotCrossedPosition(
+            [], maxGridWidthSize, maxGridHeightSize
+        ))
+        this.#player1 = new Player(player1Position, 1);
+        const player2Position = new Position(Position.getNotCrossedPosition([player1Position], maxGridWidthSize, maxGridHeightSize
+        ))
+        this.#player2 = new Player(player2Position, 2);
+
+        const googlePosition = new Position(Position.getNotCrossedPosition([player1Position, player2Position], maxGridWidthSize, maxGridHeightSize
+        ));
+        this.#google = new Google(googlePosition);
     }
 
     get settings() {
@@ -64,12 +67,8 @@ class Game {
         return this.#player2;
     }
 
-    start() {
-        if (this.#status === 'pending') {
-            this.#status = 'in-process';
-
-            this.#createUnits();
-        }
+    get google() {
+        return this.#google;
     }
 }
 
@@ -98,7 +97,15 @@ class Position {
         this.y = obj.y;
     }
 
-    static getNotCrossedPosition(maxX, maxY, coordinates) {
+    clone() {
+        return new Position({x: this.x, y: this.y});
+    }
+
+    equal(otherPosition) {
+        return (otherPosition.x === this.x && otherPosition.y === this.y);
+    }
+
+    static getNotCrossedPosition(coordinates, maxX, maxY,) {
         let x, y;
 
         do {

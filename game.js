@@ -9,6 +9,10 @@ class Game {
     #player1;
     #player2;
     #google;
+    #score = {
+        1: {points: 0,},
+        2: {points: 0,}
+    }
 
     constructor() {
     }
@@ -47,6 +51,56 @@ class Game {
         this.#google = new Google(googlePosition);
     }
 
+    #checkBorders(player, delta) {
+        //return (player.x + delta) > this.#settings.gridSize.width;
+        const newPosition = player.clone();
+        if (delta.x) newPosition.x += delta.x;
+        if (delta.y) newPosition.y += delta.y;
+
+        if (newPosition.x > this.#settings.gridSize.width || newPosition.x < 1) return false;
+    }
+
+
+    movePlayer1Right() {
+        const delta = {x: 1}
+        const isBorder = this.#checkBorders(this.#player1, delta);
+        if (isBorder) return;
+        checkOtherPlayers();
+        checkGoogleCatching();
+        //this.#player1.position.x += 1;
+    }
+
+    movePlayer1Left() {
+        const delta = {x: -1}
+        //this.#player1.position.x -= 1;
+    }
+
+    movePlayer1Up() {
+        const delta = {y: -1}
+        //this.#player1.position.x -= 1;
+    }
+
+    movePlayer1Down() {
+        const delta = {y: 1}
+        //this.#player1.position.x -= 1;
+    }
+
+    movePlayer2Right() {
+        //this.#player2.position.x += 1;
+    }
+
+    movePlayer2Left() {
+        this.#player2.position.x -= 1;
+    }
+
+    movePlayer2Up() {
+        //this.#player1.position.x -= 1;
+    }
+
+    movePlayer2Down() {
+        //this.#player1.position.x -= 1;
+    }
+
     get settings() {
         return this.#settings
     }
@@ -69,6 +123,10 @@ class Game {
 
     get google() {
         return this.#google;
+    }
+
+    get score() {
+        return this.#score;
     }
 }
 

@@ -2,7 +2,7 @@ const {Game} = require('./game')
 
 describe('game test', () => {
     it.skip('init test', () => {
-        const game = new Game();
+        //const game = new Game();
 
         game.settings = {
             gridSize: {
@@ -14,7 +14,7 @@ describe('game test', () => {
         expect(game.settings.gridSize.height).toBe(5);
     })
     it.skip('game start', () => {
-        const game = new Game();
+        //const game = new Game();
 
         game.status = 'pending'
         game.start()
@@ -48,7 +48,7 @@ describe('game test', () => {
 
     it.skip('check players and google to have unique positions', () => {
         for (let i = 0; i < 10; i++) {
-            const game = new Game();
+            //const game = new Game();
 
             game.settings = {
                 gridSize: {
@@ -100,12 +100,50 @@ describe('game test', () => {
 
         await delay(150);
 
-        console.log('prevPosition', prevPosition);
-        console.log('game.google.position', game.google.position);
-        console.log('game.player #1', game.player1.position);
-        console.log('game.player #2', game.player2.position);
+        // console.log('prevPosition', prevPosition);
+        // console.log('game.google.position', game.google.position);
+        // console.log('game.player #1', game.player1.position);
+        // console.log('game.player #2', game.player2.position);
 
         expect(game.google.position.equal(prevPosition)).toBe(false);
+    })
+    it('catch google by player#1 or player#2 for one row', async () => {
+        for (let i = 0; i < 10; i++) {
+            const game = new Game();
+
+            game.settings = {
+                gridSize: {
+                    width: 3, height: 1,
+                },
+                //googleJumpInterval: 100
+            }
+
+            await game.start()
+            // p1 p2 g | p1 g p2 | p2 p1 g | p2 g p1 | g p1 p2 | g p2 p1
+
+            const deltaForPlayer1 = game.google.position.x - game.player1.position.x;
+
+            if (Math.abs(deltaForPlayer1) === 2) {
+                const deltaForPlayer2 = game.google.position.x - game.player2.position.x;
+                if (deltaForPlayer2 > 0) {
+                    game.movePlayer2Right()
+                } else {
+                    game.movePlayer2Left()
+                }
+
+                expect(game.score[1].points).toBe(0);
+                expect(game.score[2].points).toBe(1);
+            } else {
+                if (deltaForPlayer1 > 0) {
+                    game.movePlayer1Right()
+                } else {
+                    game.movePlayer1Left()
+                }
+
+                expect(game.score[1].points).toBe(1);
+                expect(game.score[2].points).toBe(0);
+            }
+        }
     })
 })
 

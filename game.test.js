@@ -107,6 +107,7 @@ describe('game test', () => {
 
         expect(game.google.position.equal(prevPosition)).toBe(false);
     })
+
     it('catch google by player#1 or player#2 for one row', async () => {
         for (let i = 0; i < 10; i++) {
             const game = new Game();
@@ -121,14 +122,18 @@ describe('game test', () => {
             await game.start()
             // p1 p2 g | p1 g p2 | p2 p1 g | p2 g p1 | g p1 p2 | g p2 p1
 
+            // console.log('player#1', game.player1.position);
+            // console.log('player#2', game.player2.position);
+            // console.log('google', game.google.position);
+
             const deltaForPlayer1 = game.google.position.x - game.player1.position.x;
 
             if (Math.abs(deltaForPlayer1) === 2) {
                 const deltaForPlayer2 = game.google.position.x - game.player2.position.x;
                 if (deltaForPlayer2 > 0) {
-                    game.movePlayer2Right()
+                    game.movePlayer2Right();
                 } else {
-                    game.movePlayer2Left()
+                    game.movePlayer2Left();
                 }
 
                 expect(game.score[1].points).toBe(0);
@@ -142,6 +147,8 @@ describe('game test', () => {
 
                 expect(game.score[1].points).toBe(1);
                 expect(game.score[2].points).toBe(0);
+
+                // console.log('score :', game.score);
             }
         }
     })

@@ -24,14 +24,19 @@ class Game {
             this.#createUnits();
 
             setInterval(() => {
-                const googlePosition = new Position(Position.getNotCrossedPosition(
-                    [this.#player1.position, this.#player2.position, this.#google.position],
-                    this.#settings.gridSize.width,
-                    this.#settings.gridSize.height,
-                ));
-                this.#google = new Google(googlePosition);
+                this.#moveGoogle();
             }, this.#settings.googleJumpInterval)
         }
+    }
+
+    #moveGoogle() {
+        const googlePosition = new Position(
+            Position.getNotCrossedPosition(
+                [this.#player1.position, this.#player2.position, this.#google.position],
+                this.#settings.gridSize.width,
+                this.#settings.gridSize.height,
+            ));
+        this.#google = new Google(googlePosition);
     }
 
     #createUnits() {
@@ -53,52 +58,90 @@ class Game {
 
     #checkBorders(player, delta) {
         //return (player.x + delta) > this.#settings.gridSize.width;
-        const newPosition = player.clone();
+        const newPosition = player.position.clone();
         if (delta.x) newPosition.x += delta.x;
         if (delta.y) newPosition.y += delta.y;
 
-        if (newPosition.x > this.#settings.gridSize.width || newPosition.x < 1) return false;
+        if (newPosition.x < this.#settings.gridSize.width || newPosition.x > 1) {
+            return false;
+        }
+        if (newPosition.y < this.#settings.gridSize.height || newPosition.y > 1) {
+            return false;
+        }
+
+        return true;
     }
 
+    #checkOtherPlayers(movingPlayer, otherPlayer, delta) {
+        const newPosition = movingPlayer.position.clone();
+        if (delta.x) newPosition.x += delta.x;
+        if (delta.y) newPosition.y += delta.y;
+
+        return otherPlayer.position.equal(newPosition);
+    }
+
+    #checkGoogleCatching(movingPlayer, delta) {
+        const newPosition = movingPlayer.position.clone();
+        //console.log(newPosition)
+        if (delta.x) newPosition.x += delta.x;
+        if (delta.y) newPosition.y += delta.y;
+        //console.log(newPosition)
+
+        if (this.#google.position.equal(newPosition)) {
+            this.#score[movingPlayer.playerNumber].points += 1;
+            //this.#moveGoogle();
+        }
+    }
+
+    #movePlayer(player, otherPlayer, delta) {
+        const isBorder = this.#checkBorders(player, delta);
+        if (isBorder) return;
+        const isOther = this.#checkOtherPlayers(player, otherPlayer, delta);
+        if (isOther) return;
+        this.#checkGoogleCatching(player, delta);
+
+        if (delta.x) player.position.x += delta.x;
+        if (delta.y) player.position.y += delta.y;
+    }
 
     movePlayer1Right() {
         const delta = {x: 1}
-        const isBorder = this.#checkBorders(this.#player1, delta);
-        if (isBorder) return;
-        checkOtherPlayers();
-        checkGoogleCatching();
-        //this.#player1.position.x += 1;
+        this.#movePlayer(this.#player1, this.#player2, delta);
     }
 
     movePlayer1Left() {
         const delta = {x: -1}
-        //this.#player1.position.x -= 1;
+        this.#movePlayer(this.#player1, this.#player2, delta);
     }
 
     movePlayer1Up() {
         const delta = {y: -1}
-        //this.#player1.position.x -= 1;
+        this.#movePlayer(this.#player1, this.#player2, delta);
     }
 
     movePlayer1Down() {
         const delta = {y: 1}
-        //this.#player1.position.x -= 1;
+        this.#movePlayer(this.#player1, this.#player2, delta);
     }
 
     movePlayer2Right() {
-        //this.#player2.position.x += 1;
+        const delta = {x: 1}
+        this.#movePlayer(this.#player2, this.#player1, delta);
     }
 
     movePlayer2Left() {
-        this.#player2.position.x -= 1;
+        const delta = {x: -1}
+        this.#movePlayer(this.#player2, this.#player1, delta);
     }
 
     movePlayer2Up() {
-        //this.#player1.position.x -= 1;
+        const delta = {y: -1}
+        this.#movePlayer(this.#player2, this.#player1, delta);
     }
 
     movePlayer2Down() {
-        //this.#player1.position.x -= 1;
+        const delta = {y: 1}
+        this.#movePlayer(this.#player2, this.#player1, delta);
     }
 
     get settings() {

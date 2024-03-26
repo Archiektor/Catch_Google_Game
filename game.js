@@ -1,5 +1,6 @@
 class Game {
     #settings = {
+        pointsToWin: 10,
         gridSize: {
             width: 4, height: 5,
         },
@@ -31,6 +32,13 @@ class Game {
     async stop() {
         clearInterval(this.#googleMovingIntervalId);
         this.status = 'stopped';
+    }
+
+    async #finishGame() {
+        clearInterval(this.#googleMovingIntervalId);
+        // Easier and cleaner
+        this.#google = new Google(new Position({x: 50, y: 50}));
+        this.status = 'finished';
     }
 
     #runMovingGoogleInterval() {
@@ -90,14 +98,17 @@ class Game {
         return otherPlayer.position.equal(newPosition);
     }
 
-    #checkGoogleCatching(player, delta) {
+    #checkGoogleCatching(player) {
         const newPosition = player.position.clone();
-        // if (delta.x) newPosition.x += delta.x;
-        // if (delta.y) newPosition.y += delta.y;
 
         if (this.#google.position.equal(newPosition)) {
-            this.#score[player.playerNumber].points += 1;
             clearInterval(this.#googleMovingIntervalId);
+            this.#score[player.playerNumber].points += 1;
+            if (this.#score[player.playerNumber].points === this.#settings.pointsToWin) {
+                this.#finishGame().then(() => {
+                    alert(`Player #${player.playerNumber} win`)
+                });
+            }
             this.#moveGoogle();
             this.#runMovingGoogleInterval();
         }
@@ -167,6 +178,10 @@ class Game {
 
     get status() {
         return this.#status;
+    }
+
+    set status(newStatus) {
+        this.#status = newStatus;
     }
 
     get player1() {

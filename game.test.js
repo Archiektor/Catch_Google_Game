@@ -1,9 +1,17 @@
 const {Game} = require('./game')
 
 describe('game test', () => {
-    it('init test', () => {
-        const game = new Game();
+    let game;
 
+    beforeEach(() => {
+        game = new Game();
+    })
+
+    afterEach(async () => {
+        await game.stop()
+    })
+
+    it('init test', async () => {
         game.settings = {
             gridSize: {
                 width: 4, height: 5,
@@ -13,25 +21,21 @@ describe('game test', () => {
         expect(game.settings.gridSize.width).toBe(4);
         expect(game.settings.gridSize.height).toBe(5);
     })
-    it('game start', () => {
-        const game = new Game();
-
+    it('game start', async () => {
         game.status = 'pending'
-        game.start()
+        await game.start()
 
         expect(game.status).toBe('in-process');
     })
-    it('check player#1 and player#2 to have unique positions', () => {
+    it('check player#1 and player#2 to have unique positions', async () => {
         for (let i = 0; i < 10; i++) {
-            const game = new Game();
-
             game.settings = {
                 gridSize: {
                     width: 1, height: 3,
                 }
             }
 
-            game.start()
+            await game.start()
 
             const player1 = game.player1;
             const player2 = game.player2;
@@ -46,47 +50,41 @@ describe('game test', () => {
         }
     })
 
-    it('check players and google to have unique positions', () => {
-        for (let i = 0; i < 10; i++) {
-            const game = new Game();
-
-            game.settings = {
-                gridSize: {
-                    width: 1, height: 3,
-                }
+    it('check players and google to have unique positions', async () => {
+        game.settings = {
+            gridSize: {
+                width: 1, height: 3,
             }
-
-            game.start()
-
-            const player1 = game.player1;
-            const player2 = game.player2;
-            const google = game.google;
-
-            // console.log(`Try #${i}`);
-            // console.log(player1);
-            // console.log(player2);
-            // console.log(google);
-
-            expect([1]).toContain(player1.position.x);
-            expect([1, 2, 3]).toContain(player1.position.y);
-
-            expect([1]).toContain(player2.position.x);
-            expect([1, 2, 3]).toContain(player2.position.y);
-
-            expect([1]).toContain(google.position.x);
-            expect([1, 2, 3]).toContain(google.position.y);
-
-            expect(
-                google.position.x !== player1.position.x ||
-                google.position.y !== player2.position.x &&
-                google.position.x !== player2.position.y ||
-                google.position.y !== player2.position.y).toBeTruthy();
         }
+
+        await game.start()
+
+        const player1 = game.player1;
+        const player2 = game.player2;
+        const google = game.google;
+
+        // console.log(`Try #${i}`);
+        // console.log(player1);
+        // console.log(player2);
+        // console.log(google);
+
+        expect([1]).toContain(player1.position.x);
+        expect([1, 2, 3]).toContain(player1.position.y);
+
+        expect([1]).toContain(player2.position.x);
+        expect([1, 2, 3]).toContain(player2.position.y);
+
+        expect([1]).toContain(google.position.x);
+        expect([1, 2, 3]).toContain(google.position.y);
+
+        expect(
+            google.position.x !== player1.position.x ||
+            google.position.y !== player2.position.x &&
+            google.position.x !== player2.position.y ||
+            google.position.y !== player2.position.y).toBeTruthy();
     })
 
     it('check google position after jump', async () => {
-        const game = new Game();
-
         game.settings = {
             gridSize: {
                 width: 1, height: 4,
@@ -155,6 +153,63 @@ describe('game test', () => {
             // console.log('google, -> ', game.google.position);
             // console.log('prevGooglePosition, -> ', prevGooglePosition);
             expect(game.google.position.equal(prevGooglePosition)).toBe(false);
+
+            await game.stop();
+        }
+    })
+
+    it('catch google by player#1 or player#2 for one column', async () => {
+        for (let i = 0; i < 10; i++) {
+            const game = new Game();
+
+            game.settings = {
+                gridSize: {
+                    width: 1, height: 3,
+                },
+                //googleJumpInterval: 100
+            }
+            await game.start()
+            // p1 p1 p2 p2 g g
+            // p2 g p1  g p1 p2
+            // g p2  g  p1 p2 p1
+
+            // console.log('player#1', game.player1.position);
+            // console.log('player#2', game.player2.position);
+            // console.log('google', game.google.position);
+
+            const deltaForPlayer1 = game.google.position.y - game.player1.position.y;
+
+            const prevGooglePosition = game.google.position.clone();
+
+            if (Math.abs(deltaForPlayer1) === 2) {
+                const deltaForPlayer2 = game.google.position.y - game.player2.position.y;
+                if (deltaForPlayer2 > 0) {
+                    game.movePlayer2Down();
+                } else {
+                    game.movePlayer2Up();
+                }
+
+                expect(game.score[1].points).toBe(0);
+                expect(game.score[2].points).toBe(1);
+            } else {
+                if (deltaForPlayer1 > 0) {
+                    game.movePlayer1Down()
+                } else {
+                    game.movePlayer1Up()
+                }
+
+                expect(game.score[1].points).toBe(1);
+                expect(game.score[2].points).toBe(0);
+
+                console.log('score :', game.score);
+            }
+
+            // console.log('google, -> ', game.google.position);
+            // console.log('prevGooglePosition, -> ', prevGooglePosition);
+
+            expect(game.google.position.equal(prevGooglePosition)).toBe(false);
+
+            await game.stop();
         }
     })
 })

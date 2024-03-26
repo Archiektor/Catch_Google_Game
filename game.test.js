@@ -1,8 +1,8 @@
 const {Game} = require('./game')
 
 describe('game test', () => {
-    it.skip('init test', () => {
-        //const game = new Game();
+    it('init test', () => {
+        const game = new Game();
 
         game.settings = {
             gridSize: {
@@ -13,15 +13,15 @@ describe('game test', () => {
         expect(game.settings.gridSize.width).toBe(4);
         expect(game.settings.gridSize.height).toBe(5);
     })
-    it.skip('game start', () => {
-        //const game = new Game();
+    it('game start', () => {
+        const game = new Game();
 
         game.status = 'pending'
         game.start()
 
         expect(game.status).toBe('in-process');
     })
-    it.skip('check player#1 and player#2 to have unique positions', () => {
+    it('check player#1 and player#2 to have unique positions', () => {
         for (let i = 0; i < 10; i++) {
             const game = new Game();
 
@@ -46,9 +46,9 @@ describe('game test', () => {
         }
     })
 
-    it.skip('check players and google to have unique positions', () => {
+    it('check players and google to have unique positions', () => {
         for (let i = 0; i < 10; i++) {
-            //const game = new Game();
+            const game = new Game();
 
             game.settings = {
                 gridSize: {
@@ -118,15 +118,16 @@ describe('game test', () => {
                 },
                 //googleJumpInterval: 100
             }
-
             await game.start()
             // p1 p2 g | p1 g p2 | p2 p1 g | p2 g p1 | g p1 p2 | g p2 p1
 
             // console.log('player#1', game.player1.position);
             // console.log('player#2', game.player2.position);
             // console.log('google', game.google.position);
+            const prevGooglePosition = game.google.position.clone();
 
             const deltaForPlayer1 = game.google.position.x - game.player1.position.x;
+
 
             if (Math.abs(deltaForPlayer1) === 2) {
                 const deltaForPlayer2 = game.google.position.x - game.player2.position.x;
@@ -150,6 +151,10 @@ describe('game test', () => {
 
                 // console.log('score :', game.score);
             }
+
+            // console.log('google, -> ', game.google.position);
+            // console.log('prevGooglePosition, -> ', prevGooglePosition);
+            expect(game.google.position.equal(prevGooglePosition)).toBe(false);
         }
     })
 })

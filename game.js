@@ -12,7 +12,8 @@ class Game {
     #score = {
         1: {points: 0,},
         2: {points: 0,}
-    }
+    };
+    #googleMovingIntervalId;
 
     constructor() {
     }
@@ -23,10 +24,19 @@ class Game {
 
             this.#createUnits();
 
-            setInterval(() => {
-                this.#moveGoogle();
-            }, this.#settings.googleJumpInterval)
+            this.#runMovingGoogleInterval();
         }
+    }
+
+    async stop() {
+        clearInterval(this.#googleMovingIntervalId);
+        this.status = 'stopped';
+    }
+
+    #runMovingGoogleInterval() {
+        this.#googleMovingIntervalId = setInterval(() => {
+            this.#moveGoogle();
+        }, this.#settings.googleJumpInterval)
     }
 
     #moveGoogle() {
@@ -62,14 +72,14 @@ class Game {
         if (delta.x) newPosition.x += delta.x;
         if (delta.y) newPosition.y += delta.y;
 
-        if (newPosition.x < this.#settings.gridSize.width || newPosition.x > 1) {
-            return false;
+        if (newPosition.x > this.#settings.gridSize.width || newPosition.x < 1) {
+            return true;
         }
-        if (newPosition.y < this.#settings.gridSize.height || newPosition.y > 1) {
-            return false;
+        if (newPosition.y > this.#settings.gridSize.height || newPosition.y < 1) {
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     #checkOtherPlayers(movingPlayer, otherPlayer, delta) {
@@ -80,16 +90,16 @@ class Game {
         return otherPlayer.position.equal(newPosition);
     }
 
-    #checkGoogleCatching(movingPlayer, delta) {
-        const newPosition = movingPlayer.position.clone();
-        //console.log(newPosition)
-        if (delta.x) newPosition.x += delta.x;
-        if (delta.y) newPosition.y += delta.y;
-        //console.log(newPosition)
+    #checkGoogleCatching(player, delta) {
+        const newPosition = player.position.clone();
+        // if (delta.x) newPosition.x += delta.x;
+        // if (delta.y) newPosition.y += delta.y;
 
         if (this.#google.position.equal(newPosition)) {
-            this.#score[movingPlayer.playerNumber].points += 1;
-            //this.#moveGoogle();
+            this.#score[player.playerNumber].points += 1;
+            clearInterval(this.#googleMovingIntervalId);
+            this.#moveGoogle();
+            this.#runMovingGoogleInterval();
         }
     }
 
@@ -98,10 +108,13 @@ class Game {
         if (isBorder) return;
         const isOther = this.#checkOtherPlayers(player, otherPlayer, delta);
         if (isOther) return;
-        this.#checkGoogleCatching(player, delta);
 
         if (delta.x) player.position.x += delta.x;
         if (delta.y) player.position.y += delta.y;
+
+        this.#checkGoogleCatching(player, delta);
+
+        player.position.x += delta.x;
     }
 
     movePlayer1Right() {

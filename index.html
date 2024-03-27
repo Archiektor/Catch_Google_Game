@@ -2,28 +2,43 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="gameStyle.css">
     <title>JS Game</title>
+    <style>
+        /* CSS rules targeting dynamically created elements */
+        table {
+            display: block;
+            margin: 0 auto;
+            max-width: 40vw;
+        }
+
+        tr {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        td {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 4px;
+            width: 80px;
+            height: 80px;
+            border-radius: 10px;
+            box-shadow: 4px 4px 7px black;
+            background-color: #1b70b6;
+            font-size: 4.5rem;
+            color: beige;
+        }
+
+        td > img {
+            max-width: 58px;
+            max-height: 58px;
+        }
+    </style>
 </head>
 <body>
-<h1>Game start</h1>
-<table>
-    <tr>
-        <td><img src="assets/shoot.png" alt="player#1"/></td>
-        <td><img src="assets/soccer-player.png" alt="player#2"/></td>
-        <td><img src="assets/logo.png" alt="google"/></td>
-    </tr>
-    <tr>
-        <td>4</td>
-        <td>5</td>
-        <td>6</td>
-    </tr>
-    <tr>
-        <td>7</td>
-        <td>8</td>
-        <td>9</td>
-    </tr>
-</table>
+
 </body>
 <script src="front.js" type="module"></script>
 </html>

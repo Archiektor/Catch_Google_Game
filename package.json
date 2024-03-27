@@ -6,6 +6,7 @@
   "author": "Nikki Odd",
   "license": "MIT",
   "test": "jest",
+  "type": "commonjs",
   "dependencies": {
     "jest": "^29.7.0"
   }

@@ -1,4 +1,4 @@
-class Game {
+export class Game {
     #settings = {
         pointsToWin: 10,
         gridSize: {
@@ -253,6 +253,6 @@ class NumberUtils {
     }
 }
 
-module.exports = {
-    Game
-}
+// module.exports = {
+//     Game
+// }

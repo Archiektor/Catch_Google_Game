@@ -16,9 +16,6 @@ class Game {
     };
     #googleMovingIntervalId;
 
-    constructor() {
-    }
-
     async start() {
         if (this.#status === 'pending') {
             this.#status = 'in-process';
@@ -37,8 +34,8 @@ class Game {
     async #finishGame() {
         clearInterval(this.#googleMovingIntervalId);
         // Easier and cleaner
-        this.#google = new Google(new Position({x: 50, y: 50}));
-        this.status = 'finished';
+        //this.#google = new Google(new Position({x: 0, y: 0}));
+        this.status = 'finish';
     }
 
     #runMovingGoogleInterval() {
@@ -48,6 +45,10 @@ class Game {
     }
 
     #moveGoogle() {
+        if (this.#status === 'finish') {
+            this.#google = new Google(new Position({x: 0, y: 0}));
+            return;
+        }
         const googlePosition = new Position(
             Position.getNotCrossedPosition(
                 [this.#player1.position, this.#player2.position, this.#google.position],

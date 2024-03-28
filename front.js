@@ -15,9 +15,14 @@ const start = async () => {
     const game = new Game(eventEmitter);
 
     const table = document.createElement('table');
+    const result = document.querySelector('#result');
+
     document.body.append(table);
     const render = () => {
         table.innerHTML = "";
+        result.innerHTML = "";
+
+        result.append(`Player #1 score: ${game.score[1].points} - Player #2 score: ${game.score[2].points}`);
 
         for (let y = 1; y <= game.settings.gridSize.height; y++) {
             const tr = document.createElement('tr');

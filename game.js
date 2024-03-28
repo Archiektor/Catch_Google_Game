@@ -1,6 +1,6 @@
 export class Game {
     #settings = {
-        pointsToWin: 10,
+        pointsToWin: 5,
         gridSize: {
             width: 4, height: 5,
         },

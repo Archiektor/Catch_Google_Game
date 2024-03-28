@@ -1,7 +1,6 @@
 import {Game} from './game.js';
-import {Observable} from './utils/'
+import {EventEmitter} from './utils/EventEmitter.js'
 
-const game = new Game();
 
 const insertImg = (pathToImg, whereToInsert) => {
     const img = document.createElement('img');
@@ -12,12 +11,13 @@ const insertImg = (pathToImg, whereToInsert) => {
 // console.log(game);
 
 const start = async () => {
-    await game.start();
-    const render = () => {
-        const table = document.createElement('table');
-        table.classList.add('dynamic-table');
+    const eventEmitter = new EventEmitter();
+    const game = new Game(eventEmitter);
 
-        document.body.append(table);
+    const table = document.createElement('table');
+    document.body.append(table);
+    const render = () => {
+        table.innerHTML = "";
 
         for (let y = 1; y <= game.settings.gridSize.height; y++) {
             const tr = document.createElement('tr');
@@ -44,7 +44,50 @@ const start = async () => {
             table.append(tr);
         }
     }
-    render();
+
+    game.eventEmitter.addEventListener('update', () => {
+        render();
+    });
+    // render();
+
+    await game.start();
+
+    window.addEventListener('keydown', (event) => {
+        switch (event.code) {
+            case 'ArrowUp': {
+                game.movePlayer1Up();
+                break;
+            }
+            case 'ArrowDown': {
+                game.movePlayer1Down();
+                break;
+            }
+            case 'ArrowLeft': {
+                game.movePlayer1Left();
+                break;
+            }
+            case 'ArrowRight': {
+                game.movePlayer1Right();
+                break;
+            }
+            case 'KeyW': {
+                game.movePlayer2Up();
+                break;
+            }
+            case 'KeyS': {
+                game.movePlayer2Down();
+                break;
+            }
+            case 'KeyA': {
+                game.movePlayer2Left();
+                break;
+            }
+            case 'KeyD': {
+                game.movePlayer2Right();
+                break;
+            }
+        }
+    })
 }
 
 start();

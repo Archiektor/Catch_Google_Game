@@ -1,5 +1,5 @@
-class Observable {
-    #subscribers;
+export class EventEmitter {
+    #subscribers = {};
 
     addEventListener(eventName, subscriber) {
         if (!this.#subscribers[eventName]) {
@@ -10,7 +10,7 @@ class Observable {
     }
 
     emitEventListener(eventName, data = null) {
-        this.#subscribers[eventName].forEach((subscriber) => {
+        this.#subscribers[eventName]?.forEach((subscriber) => {
             subscriber(data);
         })
     }

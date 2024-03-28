@@ -16,12 +16,15 @@ export class Game {
     };
     #googleMovingIntervalId;
 
+    constructor(eventEmitter) {
+        this.eventEmitter = eventEmitter;
+    }
+
     async start() {
         if (this.#status === 'pending') {
             this.#status = 'in-process';
 
             this.#createUnits();
-
             this.#runMovingGoogleInterval();
         }
     }
@@ -47,6 +50,7 @@ export class Game {
     #moveGoogle() {
         if (this.#status === 'finish') {
             this.#google = new Google(new Position({x: 0, y: 0}));
+            this.eventEmitter.emitEventListener('update');
             return;
         }
         const googlePosition = new Position(
@@ -56,6 +60,7 @@ export class Game {
                 this.#settings.gridSize.height,
             ));
         this.#google = new Google(googlePosition);
+        this.eventEmitter.emitEventListener('update');
     }
 
     #createUnits() {
@@ -73,6 +78,7 @@ export class Game {
         const googlePosition = new Position(Position.getNotCrossedPosition([player1Position, player2Position], maxGridWidthSize, maxGridHeightSize
         ));
         this.#google = new Google(googlePosition);
+        this.eventEmitter.emitEventListener('update');
     }
 
     #checkBorders(player, delta) {
@@ -121,12 +127,17 @@ export class Game {
         const isOther = this.#checkOtherPlayers(player, otherPlayer, delta);
         if (isOther) return;
 
-        if (delta.x) player.position.x += delta.x;
-        if (delta.y) player.position.y += delta.y;
+        if (typeof delta.x === 'number' && (delta.x === 1 || delta.x === -1)) {
+            player.position.x += delta.x;
+        }
+        if (typeof delta.y === 'number' && (delta.y === 1 || delta.y === -1)) {
+            player.position.y += delta.y;
+        }
 
         this.#checkGoogleCatching(player, delta);
 
-        player.position.x += delta.x;
+
+        this.eventEmitter.emitEventListener('update');
     }
 
     movePlayer1Right() {
